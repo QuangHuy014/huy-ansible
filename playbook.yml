@@ -27,7 +27,9 @@
       shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
     - name: Add Docker Repository manually
-      shell: sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+      shell: |
+        echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable" | sudo tee /etc/apt/sources.list.d/docker.list
+        sudo apt-get update -y
 
     - name: Update apt and install docker-ce
       apt:
