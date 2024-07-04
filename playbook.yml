@@ -66,7 +66,7 @@
         owner: ubuntu
         group: ubuntu
     - name: SLEEP now !!!
-      shell: sleep 15 && sudo docker exec -i khalid-mysql mysql --user=root --password=12345 < script
+      shell: sleep 15 && sudo docker exec -i quanghuy-mysql mysql --user=root --password=12345 < script
 
     - name: Re-create a Spring container
       docker_container:
