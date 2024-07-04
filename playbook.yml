@@ -24,20 +24,34 @@
         update_cache: true
 
     - name: Download Docker GPG key
-      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /usr/share/keyrings/docker-archive-keyring.gpg
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
     - name: Add Docker Repository
       shell: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-    - name: Update apt and install docker-ce
+    - name: Download Jenkins GPG key
+      command: wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+
+    - name: Add Jenkins Repository
+      shell: echo "deb http://pkg.jenkins.io/debian-stable binary/" | tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+    - name: Update apt and install docker-ce and Jenkins
       apt:
-        name: docker-ce
+        name:
+          - docker-ce
+          - jenkins
         state: latest
         update_cache: true
 
     - name: Ensure Docker service is started
       systemd:
         name: docker
+        state: started
+        enabled: yes
+
+    - name: Ensure Jenkins service is started
+      systemd:
+        name: jenkins
         state: started
         enabled: yes
 
