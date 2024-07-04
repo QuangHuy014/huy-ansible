@@ -4,12 +4,11 @@
   become_user: root
   become_method: sudo
   tasks:
-    - name: Update and upgrade apt packages
+    - name: update
       apt:
         upgrade: yes
         update_cache: yes
         cache_valid_time: 86400
-    
     - name: Install required system packages
       apt:
         pkg:
@@ -22,43 +21,25 @@
           - python3-setuptools
         state: latest
         update_cache: true
-
-    - name: Download Docker GPG key
-      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
 
     - name: Add Docker Repository
-      shell: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
 
-    - name: Download Jenkins GPG key
-      command: wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
-
-    - name: Add Jenkins Repository
-      shell: echo "deb http://pkg.jenkins.io/debian-stable binary/" | tee /etc/apt/sources.list.d/jenkins.list > /dev/null
-
-    - name: Update apt and install docker-ce and Jenkins
+    - name: Update apt and install docker-ce
       apt:
-        name:
-          - docker-ce
-          - jenkins
+        name: docker-ce
         state: latest
         update_cache: true
 
-    - name: Ensure Docker service is started
-      systemd:
-        name: docker
-        state: started
-        enabled: yes
-
-    - name: Ensure Jenkins service is started
-      systemd:
-        name: jenkins
-        state: started
-        enabled: yes
-
-    - name: Create a Docker network
+    - name: Create a docker network
       docker_network:
         name: test
-
     - name: Re-create a MySQL container
       docker_container:
         name: quanghuy-mysql
@@ -78,21 +59,16 @@
         pull: true
         comparisons:
           image: strict
-
-    - name: Copy SQL script with owner and permissions
+    - name: Copy file with owner and permissions
       ansible.builtin.copy:
         src: ./script
         dest: /home/ubuntu/script
         owner: ubuntu
         group: ubuntu
+    - name: SLEEP now !!!
+      shell: sleep 15 && sudo docker exec -i quanghuy-mysql mysql --user=root --password=12345 < script
 
-    - name: Sleep to ensure MySQL container is ready
-      shell: sleep 15
-
-    - name: Execute SQL script in MySQL container
-      shell: docker exec -i quanghuy-mysql mysql --user=root --password=12345 < /home/ubuntu/script
-
-    - name: Re-create a Spring Boot container
+    - name: Re-create a Spring container
       docker_container:
         name: quanghuy-springboot
         image: huynq201104/springboot
@@ -111,7 +87,7 @@
         comparisons:
           image: strict
 
-    - name: Prune unused Docker objects
+    - name: Prune everything
       community.docker.docker_prune:
         containers: true
         images: true
