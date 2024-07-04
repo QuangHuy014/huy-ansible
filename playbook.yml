@@ -1,5 +1,5 @@
 - name: ec2instance-playbook
-  hosts: all
+  hosts: host
   become: yes
   become_user: root
   become_method: sudo
@@ -9,7 +9,6 @@
         upgrade: yes
         update_cache: yes
         cache_valid_time: 86400
-
     - name: Install required system packages
       apt:
         pkg:
@@ -22,19 +21,15 @@
           - python3-setuptools
         state: latest
         update_cache: true
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
 
-    - name: Install Docker Python module
-      pip:
-        name: docker
-        state: latest
-
-    - name: Add Docker GPG apt Key manually
-      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-
-    - name: Add Docker Repository manually
-      shell: |
-        echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable" | sudo tee /etc/apt/sources.list.d/docker.list
-        sudo apt-get update -y
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
 
     - name: Update apt and install docker-ce
       apt:
@@ -42,18 +37,9 @@
         state: latest
         update_cache: true
 
-    - name: Ensure Docker is started
-      systemd:
-        name: docker
-        state: started
-        enabled: true
-
     - name: Create a docker network
       docker_network:
         name: test
-        api_version: auto
-        timeout: 300
-
     - name: Re-create a MySQL container
       docker_container:
         name: quanghuy-mysql
@@ -73,20 +59,18 @@
         pull: true
         comparisons:
           image: strict
-
     - name: Copy file with owner and permissions
       ansible.builtin.copy:
         src: ./script
         dest: /home/ubuntu/script
         owner: ubuntu
         group: ubuntu
-
     - name: SLEEP now !!!
-      shell: sleep 15 && sudo docker exec -i quanghuy-mysql mysql --user=root --password=12345 < /home/ubuntu/script
+      shell: sleep 15 && sudo docker exec -i khalid-mysql mysql --user=root --password=12345 < script
 
     - name: Re-create a Spring container
       docker_container:
-        name: quanghuy-spring-boot
+        name: quanghuy-springboot
         image: huynq201104/springboot
         networks:
           - name: test
