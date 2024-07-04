@@ -17,7 +17,7 @@
         mode: '0755'
 
     - name: Download Docker GPG key
-      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker-archive-keyring.gpg
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker-archive-keyring.gpg
 
     - name: Set permissions for Docker GPG key
       file:
