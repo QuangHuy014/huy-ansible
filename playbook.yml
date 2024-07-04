@@ -9,19 +9,6 @@
         upgrade: yes
         update_cache: yes
         cache_valid_time: 86400
-    
-    - name: Install required system packages
-      apt:
-        pkg:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-          - python3-pip
-          - virtualenv
-          - python3-setuptools
-        state: latest
-        update_cache: true
 
     - name: Create keyrings directory
       file:
@@ -40,12 +27,26 @@
     - name: Add Docker Repository
       shell: echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-    - name: Update apt and install docker-ce
+    - name: Update apt cache
       apt:
-        name: 
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
+        update_cache: yes
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Install docker-ce
+      apt:
+        name: docker-ce
         state: latest
         update_cache: true
 
