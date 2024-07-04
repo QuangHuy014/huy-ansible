@@ -1,4 +1,4 @@
 [host]
-ec2-44-211-74-203.compute-1.amazonaws.com  ansible_user=ubuntu
-ec2-44-203-141-8.compute-1.amazonaws.com   ansible_user=ubuntu
+ec2-3-84-26-194.compute-1.amazonaws.com  ansible_user=ubuntu
+ec2-44-203-190-244.compute-1.amazonaws.com   ansible_user=ubuntu
 
