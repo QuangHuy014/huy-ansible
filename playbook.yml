@@ -23,9 +23,14 @@
         state: latest
         update_cache: true
 
+    - name: Download Docker GPG key
+      get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /tmp/docker-gpg-key
+
     - name: Add Docker GPG apt Key
       apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
+        file: /tmp/docker-gpg-key
         state: present
 
     - name: Add Docker Repository
@@ -105,3 +110,4 @@
       community.docker.docker_prune:
         containers: true
         images: true
+
