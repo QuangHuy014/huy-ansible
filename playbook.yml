@@ -9,7 +9,6 @@
         upgrade: yes
         update_cache: yes
         cache_valid_time: 86400
-
     - name: Install required system packages
       apt:
         pkg:
@@ -22,19 +21,17 @@
           - python3-setuptools
         state: latest
         update_cache: true
-
-    - name: Download Docker GPG key
-      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /tmp/docker.gpg
-
-    - name: Add Docker GPG key
-      command: apt-key add /tmp/docker.gpg
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
 
     - name: Add Docker Repository
       apt_repository:
         repo: deb https://download.docker.com/linux/ubuntu focal stable
         state: present
 
-        - name: Update apt and install docker-ce
+    - name: Update apt and install docker-ce
       apt:
         name: docker-ce
         state: latest
@@ -52,8 +49,8 @@
             aliases:
               - test
         env:
-          MYSQL_ROOT_PASSWORD: 12345
-          MYSQL_DATABASE: Planny
+          MYSQL_ROOT_PASSWORD: password123_DONG
+          MYSQL_DATABASE: db_example
         detach: true
         state: started
         recreate: yes
