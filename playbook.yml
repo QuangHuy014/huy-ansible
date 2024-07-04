@@ -40,9 +40,14 @@
         state: latest
         update_cache: true
 
-    - name: Create a docker network
-      docker_network:
-        name: test
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create a docker network using shell
+      shell: docker network create test
 
     - name: Re-create a MySQL container
       docker_container:
