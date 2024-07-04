@@ -1,5 +1,5 @@
 - name: ec2instance-playbook
-  hosts: host
+  hosts: all
   become: yes
   become_user: root
   become_method: sudo
@@ -22,6 +22,11 @@
           - python3-setuptools
         state: latest
         update_cache: true
+
+    - name: Install Docker Python module
+      pip:
+        name: docker
+        state: latest
 
     - name: Add Docker GPG apt Key manually
       shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
