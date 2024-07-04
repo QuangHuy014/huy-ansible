@@ -34,41 +34,63 @@
         repo: deb https://download.docker.com/linux/ubuntu focal stable
         state: present
 
-    - name: Update apt and install docker-ce
+        - name: Update apt and install docker-ce
       apt:
         name: docker-ce
         state: latest
         update_cache: true
 
-    - name: Start Docker service
-      service:
-        name: docker
+    - name: Create a docker network
+      docker_network:
+        name: test
+    - name: Re-create a MySQL container
+      docker_container:
+        name: quanghuy-mysql
+        image: mysql:8.0
+        networks:
+          - name: test
+            aliases:
+              - test
+        env:
+          MYSQL_ROOT_PASSWORD: 12345
+          MYSQL_DATABASE: Planny
+        detach: true
         state: started
-        enabled: yes
-
-    - name: Create a docker network using shell
-      shell: docker network create test
-
-    - name: Re-create a MySQL container using shell
-      shell: |
-        docker run --name quanghuy-mysql --network test --network-alias test \
-        -e MYSQL_ROOT_PASSWORD=12345 -e MYSQL_DATABASE=Planny \
-        -p 3306:3306 -d mysql:8.0
-
+        recreate: yes
+        exposed_ports:
+          - 3306
+        pull: true
+        comparisons:
+          image: strict
     - name: Copy file with owner and permissions
       ansible.builtin.copy:
         src: ./script
         dest: /home/ubuntu/script
         owner: ubuntu
         group: ubuntu
-
     - name: SLEEP now !!!
-      shell: sleep 15 && sudo docker exec -i quanghuy-mysql mysql --user=root --password=12345 < /home/ubuntu/script
+      shell: sleep 15 && sudo docker exec -i quanghuy-mysql mysql --user=root --password=12345 < script
 
-    - name: Re-create a Spring container using shell
-      shell: |
-        docker run --name quanghuy-springboot --network test --network-alias test \
-        -p 8080:8080 -d huynq201104/springboot
+    - name: Re-create a Spring container
+      docker_container:
+        name: quanghuy-springboot
+        image: huynq201104/springboot
+        networks:
+          - name: test
+            aliases:
+              - test
+        state: started
+        recreate: yes
+        exposed_ports:
+          - 8080
+        detach: true
+        published_ports:
+          - 8080:8080
+        pull: true
+        comparisons:
+          image: strict
 
     - name: Prune everything
-      shell: docker system prune -af
+      community.docker.docker_prune:
+        containers: true
+        images: true
