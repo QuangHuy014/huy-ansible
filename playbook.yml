@@ -82,7 +82,7 @@
           - 8081
         detach: true
         published_ports:
-          - 8081:6868
+          - 8081:8081
         pull: true
         comparisons:
           image: strict
