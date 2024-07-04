@@ -37,9 +37,17 @@
         state: latest
         update_cache: true
 
+    - name: Ensure Docker is started
+      systemd:
+        name: docker
+        state: started
+        enabled: true
+
     - name: Create a docker network
       docker_network:
         name: test
+        api_version: auto
+        timeout: 300
 
     - name: Re-create a MySQL container
       docker_container:
