@@ -27,7 +27,7 @@
       command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /usr/share/keyrings/docker-archive-keyring.gpg
 
     - name: Add Docker Repository
-      shell: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      shell: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     - name: Update apt and install docker-ce
       apt:
@@ -76,7 +76,7 @@
       shell: sleep 15
 
     - name: Execute SQL script in MySQL container
-      shell: sudo docker exec -i quanghuy-mysql mysql --user=root --password=12345 < /home/ubuntu/script
+      shell: docker exec -i quanghuy-mysql mysql --user=root --password=12345 < /home/ubuntu/script
 
     - name: Re-create a Spring Boot container
       docker_container:
